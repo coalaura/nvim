@@ -36,8 +36,9 @@ vim.opt.cmdheight = 0
 -- Wrap to next line when navigating
 vim.opt.whichwrap:append "<,>,h,l"
 
-vim.api.nvim_create_autocmd('BufEnter', {
-  desc = 'Convert blade filetype to html',
-  pattern = '*.blade.php',
-  command = 'set filetype=html',
+-- Make .blade.php files work
+vim.api.nvim_create_autocmd("BufEnter", {
+    desc = "Convert blade filetype to html",
+    pattern = "*.blade.php",
+    command = "set filetype=html"
 })
