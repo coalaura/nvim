@@ -73,6 +73,7 @@ local function mason_bin_path(bin)
 end
 
 -- Automatically open file manager on startup
+--[[
 vim.api.nvim_create_autocmd("VimEnter", {
 	callback = function()
 		require("nvim-tree.api").tree.open()
@@ -80,6 +81,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
 		vim.cmd("wincmd p")
 	end
 })
+--]]
 
 return {
 	-- Catppuccin
