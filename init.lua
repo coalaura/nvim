@@ -32,3 +32,6 @@ vim.opt.fileencoding = "utf-8"
 
 -- Hide command line by default
 vim.opt.cmdheight = 0
+
+-- Wrap to next line when navigating
+vim.opt.whichwrap:append "<,>,h,l"

@@ -3,7 +3,7 @@ local builtin = require("telescope.builtin")
 local adapter = require("cd-project.adapter")
 local api = require("cd-project.api")
 
-function goto_line()
+local function goto_line()
 	local lnum = vim.fn.input("Goto line: ")
 
 	if lnum ~= "" then
@@ -29,7 +29,7 @@ local function save_buffer()
 	end
 end
 
-function add_current_project()
+local function add_current_project()
 	api.add_current_project({
 		show_duplicate_hints = true
 	})
@@ -75,6 +75,10 @@ vim.keymap.set("i", "<C-y>", "<C-o><C-r>", { desc = "Redo (insert mode)" })
 vim.keymap.set("n", "<C-BS>", "db", { desc = "Delete word before cursor" })
 vim.keymap.set("i", "<C-BS>", "<C-o>db", { desc = "Delete word before cursor (insert mode)" })
 
+-- Ctrl+Delete → Delete next word
+vim.keymap.set("n", "<C-Del>", "dw", { desc = "Delete next word" })
+vim.keymap.set("i", "<C-Del>", "<C-o>dw", { desc = "Delete next word (insert mode)" })
+
 -- Ctrl+L → Prompt for a line number and jump there
 vim.keymap.set("n", "<C-l>", goto_line, { desc = "Goto line" })
 vim.keymap.set("i", "<C-l>", goto_line, { desc = "Goto line" })
@@ -89,10 +93,11 @@ vim.keymap.set("n", "<C-x>", 'dd', { desc = "Cut selection to clipboard" })
 vim.keymap.set("v", "<C-x>", 'd', { desc = "Cut selection to clipboard (visual mode)" })
 vim.keymap.set("i", "<C-x>", '<C-o>dd', { desc = "Cut selection to clipboard (insert mode)" })
 
--- Ctrl+C → Copies the current line or selected text
+-- Ctrl+V → Pastes clipboard data
 vim.keymap.set("n", "<C-v>", 'p', { desc = "Paste clipboard" })
 vim.keymap.set("v", "<C-v>", 'p', { desc = "Paste clipboard (visual mode)" })
 vim.keymap.set("i", "<C-v>", '<C-o>p', { desc = "Paste clipboard (insert mode)" })
+vim.keymap.set("c", "<C-v>", '<C-r>+', { desc = "Paste clipboard (command mode)" })
 
 -- Ctrl+P → Go to file using fuzzy finding
 vim.keymap.set("n", "<C-p>", builtin.find_files, { desc = "Goto file fuzzy find" })
