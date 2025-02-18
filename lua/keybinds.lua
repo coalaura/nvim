@@ -1,4 +1,7 @@
-local telescope = require('telescope.builtin')
+local telescope = require("telescope")
+local builtin = require("telescope.builtin")
+local adapter = require("cd-project.adapter")
+local api = require("cd-project.api")
 
 function goto_line()
 	local lnum = vim.fn.input("Goto line: ")
@@ -26,6 +29,12 @@ local function save_buffer()
 	end
 end
 
+function add_current_project()
+	api.add_current_project({
+		show_duplicate_hints = true
+	})
+end
+
 -- Ctrl+Alt+Up → Duplicate above (yank current line then paste before)
 vim.keymap.set("n", "<C-A-Up>", "yyP", { desc = "Duplicate line above" })
 vim.keymap.set("i", "<C-A-Up>", "<C-o>yy<C-o>P", { desc = "Duplicate line above" })
@@ -50,9 +59,9 @@ vim.keymap.set("i", "<C-d>", "<C-o>dd", { desc = "Delete current line (insert mo
 vim.keymap.set("n", "<C-f>", "/", { desc = "Search in current file" })
 vim.keymap.set("i", "<C-f>", "<C-o>/", { desc = "Search in current file (insert mode)" })
 
--- Ctrl+Shift+F → Enter search & replace mode
-vim.keymap.set("n", "<C-S-f>", ":%s/", { desc = "Search and replace in current file" })
-vim.keymap.set("i", "<C-S-f>", "<C-o>:%s/", { desc = "Search and replace (insert mode)" })
+-- Ctrl+Alt+F → Enter search & replace mode
+vim.keymap.set("n", "<C-M-f>", ":%s/", { desc = "Search and replace in current file" })
+vim.keymap.set("i", "<C-M-f>", "<C-o>:%s/", { desc = "Search and replace (insert mode)" })
 
 -- Ctrl+Z → Undo
 vim.keymap.set("n", "<C-z>", "u", { desc = "Undo" })
@@ -86,18 +95,29 @@ vim.keymap.set("v", "<C-v>", 'p', { desc = "Paste clipboard (visual mode)" })
 vim.keymap.set("i", "<C-v>", '<C-o>p', { desc = "Paste clipboard (insert mode)" })
 
 -- Ctrl+P → Go to file using fuzzy finding
-vim.keymap.set("n", "<C-p>", telescope.find_files, { desc = "Goto file fuzzy find" })
-vim.keymap.set("v", "<C-p>", telescope.find_files, { desc = "Goto file fuzzy find (visual mode)" })
-vim.keymap.set("i", "<C-p>", telescope.find_files, { desc = "Goto file fuzzy find (insert mode)" })
+vim.keymap.set("n", "<C-p>", builtin.find_files, { desc = "Goto file fuzzy find" })
+vim.keymap.set("v", "<C-p>", builtin.find_files, { desc = "Goto file fuzzy find (visual mode)" })
+vim.keymap.set("i", "<C-p>", builtin.find_files, { desc = "Goto file fuzzy find (insert mode)" })
 
 -- Ctrl+H → Launch a workspace search
-vim.keymap.set("n", "<C-h>", telescope.live_grep, { desc = "Search workspace" })
-vim.keymap.set("i", "<C-h>", telescope.live_grep, { desc = "Search workspace (insert mode)" })
+vim.keymap.set("n", "<C-h>", builtin.live_grep, { desc = "Search workspace" })
+vim.keymap.set("v", "<C-h>", builtin.live_grep, { desc = "Search workspace (visual mode)" })
+vim.keymap.set("i", "<C-h>", builtin.live_grep, { desc = "Search workspace (insert mode)" })
 
 -- Ctrl+R → Open recent projects
-vim.keymap.set("n", "<C-r>", ":NeovimProjectHistory<CR>", { desc = "Open recent projects" })
-vim.keymap.set("v", "<C-r>", "<C-o>:NeovimProjectHistory<CR>", { desc = "Open recent projects (visual mode)" })
-vim.keymap.set("i", "<C-r>", "<C-o>:NeovimProjectHistory<CR>", { desc = "Open recent projects (insert mode)" })
+vim.keymap.set("n", "<C-r>", adapter.cd_project, { desc = "Open recent projects" })
+vim.keymap.set("v", "<C-r>", adapter.cd_project, { desc = "Open recent projects (visual mode)" })
+vim.keymap.set("i", "<C-r>", adapter.cd_project, { desc = "Open recent projects (insert mode)" })
+
+-- Alt+R → Add current project
+vim.keymap.set("n", "<M-r>", add_current_project, { desc = "Add current project" })
+vim.keymap.set("v", "<M-r>", add_current_project, { desc = "Add current project (visual mode)" })
+vim.keymap.set("i", "<M-r>", add_current_project, { desc = "Add current project (insert mode)" })
+
+-- Ctrl+Alt+R → Add project
+vim.keymap.set("n", "<C-M-r>", adapter.manual_cd_project, { desc = "Add project" })
+vim.keymap.set("v", "<C-M-r>", adapter.manual_cd_project, { desc = "Add project (visual mode)" })
+vim.keymap.set("i", "<C-M-r>", adapter.manual_cd_project, { desc = "Add project (insert mode)" })
 
 -- Ctrl+N → Create a new file
 vim.keymap.set("n", "<C-n>", ":enew<CR>", { desc = "Create new file" })
@@ -159,3 +179,8 @@ vim.keymap.set("i", "<C-Tab>", "<C-o>:bnext<CR>", { desc = "Next buffer" })
 -- Ctrl+Shift+Tab → Move to previous buffer
 vim.keymap.set("n", "<C-S-Tab>", ":bprevious<CR>", { desc = "Previous buffer" })
 vim.keymap.set("i", "<C-S-Tab>", "<C-o>:bprevious<CR>", { desc = "Previous buffer" })
+
+-- Ctrl+Q → Run :quit!
+vim.keymap.set("n", "<C-Q>", ":quit!<CR>", { desc = "Quit" })
+vim.keymap.set("v", "<C-Q>", "<C-o>:quit!<CR>", { desc = "Quit (visual mode)" })
+vim.keymap.set("i", "<C-Q>", "<C-o>:quit!<CR>", { desc = "Quit (insert mode)" })

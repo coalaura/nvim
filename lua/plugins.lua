@@ -68,6 +68,10 @@ local function close_buffer(bufnum)
     vim.cmd("bw! " .. bufnum)
 end
 
+local function mason_bin_path(bin)
+	return vim.fn.stdpath("data") .. "/mason/bin/" .. bin
+end
+
 -- Automatically open file manager on startup
 vim.api.nvim_create_autocmd("VimEnter", {
 	callback = function()
@@ -148,7 +152,9 @@ return {
 			"natecraddock/telescope-zf-native.nvim"
 		},
 		config = function()
-			require("telescope").setup({
+			local telescope = require("telescope")
+
+			telescope.setup({
 				defaults = {
 					vimgrep_arguments = {
 						"rg", "--color=never", "--no-heading", "--with-filename", "--line-number", "--column", "--smart-case"
@@ -190,7 +196,7 @@ return {
 				},
 			})
 
-			require("telescope").load_extension("zf-native")
+			telescope.load_extension("zf-native")
 		end
 	},
 
@@ -263,42 +269,28 @@ return {
 		}
 	},
 
+	-- Project management
+	{
+		"LintaoAmons/cd-project.nvim",
+		dependencies = {
+			"nvim-telescope/telescope.nvim"
+		},
+		config = function()
+			require("cd-project").setup({
+				projects_config_filepath = vim.fs.normalize(vim.fn.stdpath("config") .. "/projects.json"),
+				project_dir_pattern = {
+					".git", ".gitignore", "Cargo.toml", "package.json", "go.mod"
+				},
+				choice_format = "both",
+				projects_picker = "telescope",
+				auto_register_project = false
+			})
+		end
+	},
+
 	-- Git blame
 	{
 		"f-person/git-blame.nvim"
-	},
-
-	-- Project manager
-	{
-		"coffebar/neovim-project",
-		dependencies = {
-			"nvim-lua/plenary.nvim",
-			{
-				"nvim-telescope/telescope.nvim",
-				tag = "0.1.4"
-			},
-			"Shatur/neovim-session-manager"
-		},
-		lazy = false,
-		priority = 100,
-		init = function()
-			vim.opt.sessionoptions:append("globals")
-		end,
-		config = function()
-			require("neovim-project").setup({
-				projects = {
-					"~/.config/*"
-				},
-				picker = {
-					type = "telescope"
-				},
-				forget_project_keys = {
-					i = "<C-d>",
-					n = "<C-d>"
-				},
-				last_session_on_startup = true
-			})
-		end
 	},
 
 	-- Tailwind tools
@@ -379,6 +371,68 @@ return {
 						end
 					end
 				end
+			})
+		end
+	},
+
+	-- LSP support
+	{
+		"neovim/nvim-lspconfig",
+		config = function()
+			local lspconfig = require("lspconfig")
+
+			lspconfig.gopls.setup({})
+			lspconfig.html.setup({})
+
+			lspconfig.ts_ls.setup({
+				cmd = {
+					mason_bin_path("typescript-language-server"), "--stdio"
+				},
+			})
+
+			lspconfig.intelephense.setup({
+				cmd = {
+					mason_bin_path("intelephense"), "--stdio"
+				},
+				root_dir = function ()
+					return vim.loop.cwd()
+				end
+			})
+
+			lspconfig.lua_ls.setup({
+				settings = {
+					Lua = {
+						diagnostics = {
+							globals = {
+								"vim"
+							}
+						}
+					}
+				}
+			})
+
+			lspconfig.emmet_ls.setup({
+				filetypes = {
+					"html", "typescriptreact", "javascriptreact", "css", "sass", "scss", "less", "svelte"
+				}
+			})
+		end
+	},
+
+	-- Auto-install LSP servers
+	{
+		"williamboman/mason.nvim",
+		dependencies = {
+			"williamboman/mason-lspconfig.nvim"
+		},
+		config = function()
+			require("mason").setup()
+
+			require("mason-lspconfig").setup({
+				ensure_installed = {
+					"ts_ls", "gopls", "lua_ls", "emmet_ls", "intelephense"
+				},
+				automatic_installation = true
 			})
 		end
 	}
