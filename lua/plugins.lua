@@ -213,7 +213,8 @@ return {
 				options = {
 					style_preset = require("bufferline").style_preset.minimal,
 					middle_mouse_command = close_buffer,
-					left_mouse_command = close_buffer,
+					right_mouse_command = close_buffer,
+					left_mouse_command = "buffer %d",
 					separator_style = "thick",
 					show_buffer_close_icons = false,
 					show_close_icon = false,
@@ -283,7 +284,14 @@ return {
 				},
 				choice_format = "both",
 				projects_picker = "telescope",
-				auto_register_project = false
+				auto_register_project = false,
+				hooks = {
+					{
+						callback = function(_)
+							vim.api.nvim_command("bufdo bd!")
+						end
+					}
+				}
 			})
 		end
 	},
@@ -393,6 +401,9 @@ return {
 			lspconfig.intelephense.setup({
 				cmd = {
 					mason_bin_path("intelephense"), "--stdio"
+				},
+				filetypes = {
+					"php", "blade"
 				},
 				root_dir = function ()
 					return vim.loop.cwd()
